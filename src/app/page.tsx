@@ -16,6 +16,7 @@ type Tour = {
   headPhoto: { src: string; label: string };
   stops: Stop[];
   gallery: { src: string; label: string }[];
+  mapEmbed?: string;
 };
 
 /* Shared start & end of every day */
@@ -146,6 +147,7 @@ const TOURS: Tour[] = [
       { src: `${IMG}/place_atera_onsen_1.jpg`, label: "Atera onsen" },
       { src: `${IMG}/place_midono_end_1.jpg`, label: "Finish in Midono" },
     ],
+    mapEmbed: "https://www.google.com/maps/d/embed?mid=1LgL4RlnePF5JdvpqzADrpsrrW7oTVDE",
   },
 ];
 
@@ -375,9 +377,15 @@ export default function Page() {
                     </li>
                   ))}
                 </ol>
-                <div className="map-slot">
-                  <span>Route map — Google My Maps embed goes here</span>
-                </div>
+                {t.mapEmbed ? (
+                  <div className="map-slot has-map">
+                    <iframe src={t.mapEmbed} title={`${t.plan} route map`} loading="lazy" allowFullScreen />
+                  </div>
+                ) : (
+                  <div className="map-slot">
+                    <span>Route map — Google My Maps embed goes here</span>
+                  </div>
+                )}
                 <div className="gallery">
                   {t.gallery.map((g) => (
                     <Figure key={g.src} src={g.src} label={g.label} />
