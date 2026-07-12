@@ -59,9 +59,14 @@ Done:
 Revision 1 (2026-07-12, applied): hero → "Dive into the local." only + new lede (book 2 nights, we arrange the rest); dropped provider-logic heading above Why/How/What; Why/How/What now stacked **vertically** (alternating photo/text) with rewritten copy (visitor+migrant POV / integrate-the-day thesis / "3 ways to spend one day"); every tour timeline now = Breakfast(ochazuke, vegan/GF) → E-bike hiring (taxi optional) → AM/Lunch/PM → Dinner(vegan hot pot); Plan B dropped river-fishing, PM = "Kakizore green to Atera blue"; Plan C AM upper Kiso→Agematsu, lunch Agematsu, PM lower Kiso 4 post towns; removed all "Saturday" wording (nav/float "Book a day", schedule "Pick a date"); FAQ added vegan Q.
 
 Next tasks (in order):
-1. **User review** of revised draft (live at localhost:3000 Browser pane) → iterate further per feedback.
-2. **Deploy setup** (needs user one-time action): create empty GitHub repo `yasuhiro-fukuta/nagiso-daytours` + import to Vercel (`yakkuns-projects`). Then I push `main`, create `staging`, (optionally) disable Deployment Protection for login-free preview.
+1. **User review** of revised draft → iterate further per feedback.
+2. **Vercel import** (user one-time action): import `yasuhiro-fukuta/nagiso-daytours` to Vercel scope `yakkuns-projects` (`main` = production, `staging` = preview); optionally disable Deployment Protection for login-free preview.
 3. Post-launch swaps: real photos at `/img/<name>.jpg` (exact names in image map above), 3 MyMap route embeds, Square class-schedule embed, 特商法 (SCTA) statutory disclosure page.
+
+## 2026-07-12 (later, cloud session) — repo on GitHub, build verified ✅
+- Repo `yasuhiro-fukuta/nagiso-daytours` pushed by user; `main` + `staging` both at 9b29644 (first draft incl. Revision 1).
+- Cloud session cloned it, `npm install` + `npm run build` pass clean (Next.js 15.5.10, zero warnings).
+- Vercel import still pending (couldn't verify from cloud session — vercel.app blocked by its network policy). Once imported, verify staging preview URL then production.
 
 Design system lives in `globals.css`; image placeholders are the `Figure` component (`src="/img/<name>.jpg"`), which auto-swaps to the real photo when the file is dropped in `public/img/`. `public/img/` is currently empty by design.
 
