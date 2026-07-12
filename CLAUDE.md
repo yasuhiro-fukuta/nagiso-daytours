@@ -37,7 +37,7 @@ Edit flow: clone fresh → edit → push `staging` → verify preview URL → me
 - organizer: `yakkun.jpg` (bio: ex-traveler → fell for Nagiso → quit salaryman job, solo migration; now runs Kashiwaya guesthouse + rental cycles + tour guiding; creed = share "authentic" rural Japan "as it authentically is")
 
 ## Deferred embeds (placeholders in page now, real content later)
-- MyMap route embeds — one per tour
+- MyMap route embeds — Plan C DONE (mid=1LgL4RlnePF5JdvpqzADrpsrrW7oTVDE, via `mapEmbed` field on the tour object); Plan A & B pending
 - Square prepayment / class-schedule embed — schedule section
 - Legal: Specified Commercial Transactions Act (特商法) statutory disclosure page
 
@@ -63,10 +63,11 @@ Next tasks (in order):
 2. **Vercel import** (user one-time action): import `yasuhiro-fukuta/nagiso-daytours` to Vercel scope `yakkuns-projects` (`main` = production, `staging` = preview); optionally disable Deployment Protection for login-free preview.
 3. Post-launch swaps: real photos at `/img/<name>.jpg` (exact names in image map above), 3 MyMap route embeds, Square class-schedule embed, 特商法 (SCTA) statutory disclosure page.
 
-## 2026-07-12 (later, cloud session) — repo on GitHub, build verified ✅
-- Repo `yasuhiro-fukuta/nagiso-daytours` pushed by user; `main` + `staging` both at 9b29644 (first draft incl. Revision 1).
-- Cloud session cloned it, `npm install` + `npm run build` pass clean (Next.js 15.5.10, zero warnings).
-- Vercel import still pending (couldn't verify from cloud session — vercel.app blocked by its network policy). Once imported, verify staging preview URL then production.
+## 2026-07-12 (later, cloud session) — repo on GitHub, Vercel LIVE, Plan C map embedded ✅
+- Repo `yasuhiro-fukuta/nagiso-daytours` pushed by user; cloud session verified build clean (Next.js 15.5.10, zero warnings).
+- User imported to Vercel (`yakkuns-projects`). `main` = production, `staging` preview = `nagiso-daytours-git-staging-yakkuns-projects.vercel.app`. Full staging→verify→merge cycle exercised successfully.
+- Plan C MyMap route embedded (`mapEmbed` optional field on Tour + `.map-slot.has-map` iframe styles); user verified on staging preview, merged to production.
+- Note: vercel.app & google.com are blocked by this cloud session's network policy — user verifies previews in their own browser.
 
 Design system lives in `globals.css`; image placeholders are the `Figure` component (`src="/img/<name>.jpg"`), which auto-swaps to the real photo when the file is dropped in `public/img/`. `public/img/` is currently empty by design.
 
