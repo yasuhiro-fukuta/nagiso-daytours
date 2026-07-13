@@ -58,16 +58,18 @@ Done:
 
 Revision 1 (2026-07-12, applied): hero → "Dive into the local." only + new lede (book 2 nights, we arrange the rest); dropped provider-logic heading above Why/How/What; Why/How/What now stacked **vertically** (alternating photo/text) with rewritten copy (visitor+migrant POV / integrate-the-day thesis / "3 ways to spend one day"); every tour timeline now = Breakfast(ochazuke, vegan/GF) → E-bike hiring (taxi optional) → AM/Lunch/PM → Dinner(vegan hot pot); Plan B dropped river-fishing, PM = "Kakizore green to Atera blue"; Plan C AM upper Kiso→Agematsu, lunch Agematsu, PM lower Kiso 4 post towns; removed all "Saturday" wording (nav/float "Book a day", schedule "Pick a date"); FAQ added vegan Q.
 
-Next tasks (in order):
-1. **User review** of revised draft → iterate further per feedback.
-2. **Vercel import** (user one-time action): import `yasuhiro-fukuta/nagiso-daytours` to Vercel scope `yakkuns-projects` (`main` = production, `staging` = preview); optionally disable Deployment Protection for login-free preview.
-3. Post-launch swaps: real photos at `/img/<name>.jpg` (exact names in image map above), 3 MyMap route embeds, Square class-schedule embed, 特商法 (SCTA) statutory disclosure page.
-
 ## 2026-07-12 (later, cloud session) — repo on GitHub, Vercel LIVE, Plan C map embedded ✅
 - Repo `yasuhiro-fukuta/nagiso-daytours` pushed by user; cloud session verified build clean (Next.js 15.5.10, zero warnings).
 - User imported to Vercel (`yakkuns-projects`). `main` = production, `staging` preview = `nagiso-daytours-git-staging-yakkuns-projects.vercel.app`. Full staging→verify→merge cycle exercised successfully.
 - Plan C MyMap route embedded (`mapEmbed` optional field on Tour + `.map-slot.has-map` iframe styles); user verified on staging preview, merged to production.
 - Note: vercel.app & google.com are blocked by this cloud session's network policy — user verifies previews in their own browser.
+
+Next tasks (any order, per user request):
+1. Plan A & B MyMap route embeds — just set `mapEmbed` on the tour object once user shares each map URL (convert `/edit?mid=…` → `/embed?mid=…`; map must be shared "anyone with the link").
+2. Real photos: drop files at `public/img/<name>.jpg` (exact names in image map above) — `Figure` auto-swaps them in.
+3. Square prepayment / class-schedule embed in the schedule section.
+4. 特商法 (SCTA) statutory disclosure page.
+5. Further copy/design iteration per user feedback.
 
 Design system lives in `globals.css`; image placeholders are the `Figure` component (`src="/img/<name>.jpg"`), which auto-swaps to the real photo when the file is dropped in `public/img/`. `public/img/` is currently empty by design.
 
