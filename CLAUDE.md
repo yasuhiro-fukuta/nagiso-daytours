@@ -64,6 +64,12 @@ Revision 1 (2026-07-12, applied): hero → "Dive into the local." only + new led
 - Plan C MyMap route embedded (`mapEmbed` optional field on Tour + `.map-slot.has-map` iframe styles); user verified on staging preview, merged to production.
 - Note: vercel.app & google.com are blocked by this cloud session's network policy — user verifies previews in their own browser.
 
+## 2026-07-19 — Japanese version + EN/日本語 language toggle ✅
+- `page.tsx` fully bilingual: all copy restructured as `{en, ja}` pairs (`L`/`LN` types), `lang` state at Page level with `t()`/`tn()` pickers. Choice persists in `localStorage` (`nld-lang`) and sets `document.documentElement.lang`.
+- Nav top-right: `EN / 日本語` segmented toggle (`.nav-right` + `.lang-toggle` styles in globals.css; gold underline on active, adapts to scrolled nav).
+- Tour subtitle line (`.tour-jp`) now shows the *opposite* language as the accent: JP subtitle in EN mode (as before), EN title in JA mode.
+- Verified via Playwright: toggle switches all sections, persists across reload, console clean.
+
 Next tasks (any order, per user request):
 1. Plan A & B MyMap route embeds — just set `mapEmbed` on the tour object once user shares each map URL (convert `/edit?mid=…` → `/embed?mid=…`; map must be shared "anyone with the link").
 2. Real photos: drop files at `public/img/<name>.jpg` (exact names in image map above) — `Figure` auto-swaps them in.
