@@ -1,285 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
 import Figure from "./Figure";
-
-const IMG = "/img";
-
-/* ==================== i18n ==================== */
-type Lang = "en" | "ja";
-type L = { en: string; ja: string };
-type LN = { en: React.ReactNode; ja: React.ReactNode };
-
-type Stop = { title: L; body: L };
-type Tour = {
-  plan: string;
-  title: LN;
-  /* Accent line under the title — shows the *other* language:
-     `en` = Japanese subtitle shown in EN mode, `ja` = English subtitle shown in JA mode */
-  sub: L;
-  target: L;
-  mobility: L;
-  price: string;
-  headPhoto: { src: string; label: L };
-  stops: Stop[];
-  gallery: { src: string; label: L }[];
-  mapEmbed?: string;
-};
-
-/* Shared start & end of every day */
-const BREAKFAST: Stop = {
-  title: { en: "Breakfast delivered to your inn", ja: "朝食を宿へお届け" },
-  body: {
-    en: "Ochazuke — rice in a savoury broth — with miso soup and pickles. Vegan & gluten-free.",
-    ja: "お茶漬け — 出汁をかけたご飯 — にお味噌汁とお漬物。ヴィーガン&グルテンフリー。",
-  },
-};
-const EBIKE: Stop = {
-  title: { en: "E-bike hiring", ja: "Eバイクの貸し出し" },
-  body: {
-    en: "Fat-tire e-bikes for the day. On request we can arrange a taxi instead.",
-    ja: "ファットタイヤEバイクを終日ご利用いただけます。ご希望に応じてタクシーの手配も。",
-  },
-};
-const DINNER: Stop = {
-  title: { en: "Dinner delivered to your inn", ja: "夕食を宿へお届け" },
-  body: {
-    en: "Vegan hot pot — soy meat with local vegetables and mushrooms in a rich broth. Vegan & gluten-free.",
-    ja: "ヴィーガン鍋 — 大豆ミートと地元の野菜、きのこを濃厚な出汁で。ヴィーガン&グルテンフリー。",
-  },
-};
-
-const TOURS: Tour[] = [
-  {
-    plan: "Plan A",
-    title: {
-      en: (
-        <>
-          A Day, <em>300 Years Ago</em>
-        </>
-      ),
-      ja: (
-        <>
-          古民家で過ごす、<em>江戸の一日</em>
-        </>
-      ),
-    },
-    sub: { en: "古民家で過ごす、江戸の一日", ja: "A Day, 300 Years Ago" },
-    target: { en: "Seniors & families", ja: "シニア・ご家族" },
-    mobility: { en: "On foot / e-bike", ja: "徒歩 / Eバイク" },
-    price: "¥40,000",
-    headPhoto: {
-      src: `${IMG}/explanation_kominka_kashiwaya_1.jpg`,
-      label: { en: "Kominka Kashiwaya", ja: "古民家 柏屋" },
-    },
-    stops: [
-      BREAKFAST,
-      EBIKE,
-      {
-        title: { en: "AM activity: Zazen & morning yoga", ja: "午前:坐禅と朝ヨガ" },
-        body: {
-          en: "Sit, breathe, and stretch on tatami as the valley wakes up.",
-          ja: "谷が目覚める頃、畳の上で座り、呼吸を整え、体を伸ばす。",
-        },
-      },
-      {
-        title: { en: "Lunch: Gohei-mochi by the irori", ja: "昼食:囲炉裏で五平餅" },
-        body: {
-          en: "Rice mochi glazed and grilled over the sunken hearth, the way families here ate on a good day.",
-          ja: "囲炉裏でタレを塗って焼き上げる五平餅。この土地の家々が、ハレの日に食べてきた味。",
-        },
-      },
-      {
-        title: { en: "PM activity: Hands of the village", ja: "午後:村の手仕事" },
-        body: {
-          en: "Choose your craft with a local sensei — wagashi sweets, calligraphy, carving a small Buddha, or warazaiku straw work.",
-          ja: "地元の先生と、好きな手仕事をひとつ — 和菓子づくり、書道、小さな仏像彫り、わら細工。",
-        },
-      },
-      DINNER,
-    ],
-    gallery: [
-      { src: `${IMG}/activities_zazen.jpg`, label: { en: "Zazen", ja: "坐禅" } },
-      { src: `${IMG}/activities_yoga.jpg`, label: { en: "Yoga", ja: "ヨガ" } },
-      { src: `${IMG}/lunch_irori_goheimochi_1.jpg`, label: { en: "Gohei-mochi at the irori", ja: "囲炉裏の五平餅" } },
-      { src: `${IMG}/lunch_lunchbox_1.jpg`, label: { en: "Lunch box", ja: "お弁当" } },
-      { src: `${IMG}/activities_wagashi.jpg`, label: { en: "Wagashi", ja: "和菓子" } },
-      { src: `${IMG}/activities_calligraphy.jpg`, label: { en: "Calligraphy", ja: "書道" } },
-      { src: `${IMG}/activities_warazaiku.jpg`, label: { en: "Warazaiku straw work", ja: "わら細工" } },
-      { src: `${IMG}/explanation_kominka_koubou_1.jpg`, label: { en: "Carving workshop", ja: "彫刻の工房" } },
-    ],
-  },
-  {
-    plan: "Plan B",
-    title: {
-      en: (
-        <>
-          Three-Color <em>Ride</em>
-        </>
-      ),
-      ja: (
-        <>
-          渓谷の<em>シャワーサイクリング</em>
-        </>
-      ),
-    },
-    sub: { en: "渓谷のシャワーサイクリング", ja: "Three-Color Ride" },
-    target: { en: "Active couples, 30s", ja: "アクティブなカップル・30代" },
-    mobility: { en: "E-bike + tour transfer", ja: "Eバイク+ツアー送迎" },
-    price: "¥60,000",
-    headPhoto: {
-      src: `${IMG}/explanation_all_gorge_1.jpg`,
-      label: { en: "The gorges of Nagiso", ja: "南木曽の渓谷" },
-    },
-    stops: [
-      BREAKFAST,
-      EBIKE,
-      {
-        title: { en: "AM activity: Downhill from Tadachi", ja: "午前:田立からダウンヒル" },
-        body: {
-          en: "A long, easy coast down from the white water of Tadachi Falls.",
-          ja: "田立の滝の白い水しぶきから、長くゆるやかに下っていく。",
-        },
-      },
-      {
-        title: { en: "Lunch: Gohei-mochi by the irori", ja: "昼食:囲炉裏で五平餅" },
-        body: {
-          en: "Hearth-grilled mochi at a kominka beside the water.",
-          ja: "川辺の古民家で、囲炉裏焼きの五平餅を。",
-        },
-      },
-      {
-        title: { en: "PM activity: Kakizore green to Atera blue", ja: "午後:柿其の緑から阿寺の青へ" },
-        body: {
-          en: "Over one peak, from the green of Kakizore Gorge to the blue of Atera — dip into the river along the way as you wish.",
-          ja: "峠をひとつ越えて、柿其渓谷の緑から阿寺の青へ — 道中、好きなだけ川に浸かって。",
-        },
-      },
-      DINNER,
-    ],
-    gallery: [
-      { src: `${IMG}/place_tadachi_gorge_1.jpg`, label: { en: "Tadachi Gorge", ja: "田立の渓谷" } },
-      { src: `${IMG}/place_takahashi_fishing_1.jpg`, label: { en: "By the river", ja: "川辺にて" } },
-      { src: `${IMG}/place_kominka_kikori_1.jpg`, label: { en: "Woodcutter's kominka", ja: "木こりの古民家" } },
-      { src: `${IMG}/lunch_irori_goheimochi_1.jpg`, label: { en: "Gohei-mochi lunch", ja: "五平餅の昼食" } },
-      { src: `${IMG}/road_koiji_trail_1.jpg`, label: { en: "Koiji trail", ja: "恋路峠の道" } },
-      { src: `${IMG}/place_kakizore_gorge_1.jpg`, label: { en: "Kakizore Gorge", ja: "柿其渓谷" } },
-      { src: `${IMG}/place_atera_gorge_1.jpg`, label: { en: "Atera Gorge", ja: "阿寺渓谷" } },
-      { src: `${IMG}/place_atera_onsen_1.jpg`, label: { en: "Atera onsen", ja: "阿寺温泉" } },
-      { src: `${IMG}/place_nojiri_end_1.jpg`, label: { en: "Finish at Nojiri", ja: "野尻でゴール" } },
-    ],
-  },
-  {
-    plan: "Plan C",
-    title: {
-      en: (
-        <>
-          The World's Most <em>Comfortable 50 km</em>
-        </>
-      ),
-      ja: (
-        <>
-          木曽川をくだる、<em>世界一ラクな50km</em>
-        </>
-      ),
-    },
-    sub: { en: "木曽川をひたすら下る、世界一ラクな50km", ja: "The World's Most Comfortable 50 km" },
-    target: { en: "Beginner cyclists", ja: "サイクリング初心者" },
-    mobility: { en: "E-bike + tour transfer", ja: "Eバイク+ツアー送迎" },
-    price: "¥80,000",
-    headPhoto: {
-      src: `${IMG}/explanation_kiso_river_1.jpg`,
-      label: { en: "The Kiso River", ja: "木曽川" },
-    },
-    stops: [
-      BREAKFAST,
-      EBIKE,
-      {
-        title: { en: "Shuttle up to Yabuhara", ja: "藪原までシャトル送迎" },
-        body: {
-          en: "We lift you and the bikes to the top of the valley, where the Kiso River begins — from here you only ever roll down.",
-          ja: "あなたと自転車を、木曽川の始まる谷の上流まで運びます — ここから先は、下るだけ。",
-        },
-      },
-      {
-        title: { en: "AM activity: Down the upper Kiso", ja: "午前:上流の木曽路を下る" },
-        body: {
-          en: "Through three post towns — Yabuhara, Miyanokoshi and Kiso-Fukushima — into Agematsu.",
-          ja: "藪原、宮ノ越、木曽福島 — 3つの宿場町を抜けて、上松へ。",
-        },
-      },
-      {
-        title: { en: "Lunch: in Agematsu", ja: "昼食:上松にて" },
-        body: {
-          en: "A break in the old post town of Agematsu.",
-          ja: "古い宿場町・上松でひと休み。",
-        },
-      },
-      {
-        title: { en: "PM activity: Down the lower Kiso", ja: "午後:下流の木曽路を下る" },
-        body: {
-          en: "Through four post towns — Agematsu, Suhara, Nojiri and Midono — to the finish.",
-          ja: "上松、須原、野尻、三留野 — 4つの宿場町を抜けて、ゴールへ。",
-        },
-      },
-      DINNER,
-    ],
-    gallery: [
-      { src: `${IMG}/explanation_all_post_town_1.jpg`, label: { en: "Post towns", ja: "宿場町" } },
-      { src: `${IMG}/explanation_all_station_1.jpg`, label: { en: "Stations en route", ja: "沿線の駅" } },
-      { src: `${IMG}/transportation_ebike_on_jr_1.jpg`, label: { en: "E-bike on the JR", ja: "JRにEバイクを載せて" } },
-      { src: `${IMG}/place_yabuhara_1.jpg`, label: { en: "Yabuhara", ja: "藪原" } },
-      { src: `${IMG}/place_kiso_river_beggining_1.jpg`, label: { en: "River source", ja: "木曽川の始まり" } },
-      { src: `${IMG}/place_yabuhara_cafe_1.jpg`, label: { en: "Yabuhara café", ja: "藪原のカフェ" } },
-      { src: `${IMG}/road_upper_kiso.jpg`, label: { en: "Upper Kiso road", ja: "上流の木曽路" } },
-      { src: `${IMG}/lunch_kisofukushima_1.jpg`, label: { en: "Agematsu lunch", ja: "上松の昼食" } },
-      { src: `${IMG}/road_downer_kiso.jpg`, label: { en: "Lower Kiso road", ja: "下流の木曽路" } },
-      { src: `${IMG}/place_atera_gorge_1.jpg`, label: { en: "Atera Gorge", ja: "阿寺渓谷" } },
-      { src: `${IMG}/place_atera_onsen_1.jpg`, label: { en: "Atera onsen", ja: "阿寺温泉" } },
-      { src: `${IMG}/place_midono_end_1.jpg`, label: { en: "Finish in Midono", ja: "三留野でゴール" } },
-    ],
-    mapEmbed: "https://www.google.com/maps/d/embed?mid=1LgL4RlnePF5JdvpqzADrpsrrW7oTVDE",
-  },
-];
-
-const SENSEIS: { craft: L; src: string; name: L; body: L }[] = [
-  {
-    craft: { en: "Wagashi", ja: "和菓子" },
-    src: `${IMG}/local_sensei_wagashi.jpg`,
-    name: { en: "The sweets maker", ja: "和菓子職人" },
-    body: {
-      en: "Seasonal wagashi, shaped by hand from bean and rice.",
-      ja: "豆と米から手で形づくる、季節の和菓子。",
-    },
-  },
-  {
-    craft: { en: "Yoga", ja: "ヨガ" },
-    src: `${IMG}/local_sensei_yoga.jpg`,
-    name: { en: "The yoga teacher", ja: "ヨガの先生" },
-    body: {
-      en: "A slow morning flow on tatami, open to every body.",
-      ja: "畳の上の、ゆったりとした朝のフロー。どんな体にも開かれています。",
-    },
-  },
-  {
-    craft: { en: "Zazen", ja: "坐禅" },
-    src: `${IMG}/local_sensei_zazen.jpg`,
-    name: { en: "The zazen guide", ja: "坐禅の導き手" },
-    body: {
-      en: "Sitting meditation, taught the plain old way.",
-      ja: "昔ながらの、飾らない坐禅の作法。",
-    },
-  },
-  {
-    craft: { en: "Shodō", ja: "書道" },
-    src: `${IMG}/local_sensei_calligraphy.jpg`,
-    name: { en: "The calligrapher", ja: "書家" },
-    body: {
-      en: "Ink, brush, and breath — one honest line at a time.",
-      ja: "墨と筆と呼吸 — 正直な一線を、一本ずつ。",
-    },
-  },
-];
+import Nav from "./Nav";
+import Footer from "./Footer";
+import { useLang, type L } from "./i18n";
+import { IMG, TOURS, WHATSAPP } from "./content";
 
 const FAQS: { q: L; a: L }[] = [
   {
@@ -306,90 +32,25 @@ const FAQS: { q: L; a: L }[] = [
   {
     q: { en: "Do I need to be fit?", ja: "体力に自信がなくても大丈夫?" },
     a: {
-      en: "Plan A is gentle (walking and easy e-bike) and Plan C is almost all downhill — great for beginners. Plan B has real distance and climbs, so it's best for confident riders.",
-      ja: "プランAはゆったり(徒歩とやさしいEバイク)、プランCはほぼ下りだけなので初心者に最適です。プランBは距離も登りも本格的なので、走り慣れた方向けです。",
+      en: "Plan A is gentle (walking and easy e-bike) and Plan C is almost all downhill — both are great for beginners.",
+      ja: "プランAはゆったり(徒歩とやさしいEバイク)、プランCはほぼ下りだけ。どちらも初心者に最適です。",
     },
   },
   {
-    q: { en: "How do I pay?", ja: "支払い方法は?" },
+    q: { en: "How do I book and pay?", ja: "予約と支払いの方法は?" },
     a: {
-      en: "Securely online, in advance, via Square. Cancellation terms are shown before checkout.",
-      ja: "Squareを通じて、オンラインで安全に事前決済いただきます。キャンセル規定はチェックアウト前に表示されます。",
+      en: "Message us on WhatsApp with your tour, date and group size. We confirm your seats and share payment details there — cancellation terms are shown before you pay.",
+      ja: "ツアーと日付、人数を添えてWhatsAppでメッセージをお送りください。お席を確認のうえ、お支払い方法をそちらでご案内します。キャンセル規定はお支払い前にお伝えします。",
     },
   },
 ];
 
-function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  const t = (x: L) => x[lang];
-  return (
-    <nav className={`nav ${scrolled ? "scrolled" : ""}`}>
-      <a href="#top" className="brand">
-        Nagiso <em>Local Dive</em>
-      </a>
-      <div className="nav-links">
-        <a href="#idea">{t({ en: "The idea", ja: "コンセプト" })}</a>
-        <a href="#day">{t({ en: "A day", ja: "一日の流れ" })}</a>
-        <a href="#tours">{t({ en: "Tours", ja: "ツアー" })}</a>
-        <a href="#people">{t({ en: "People", ja: "ひとびと" })}</a>
-      </div>
-      <div className="nav-right">
-        <div className="lang-toggle" role="group" aria-label="Language / 言語">
-          <button
-            type="button"
-            className={lang === "en" ? "on" : ""}
-            onClick={() => setLang("en")}
-            aria-pressed={lang === "en"}
-          >
-            EN
-          </button>
-          <span className="lang-sep" aria-hidden="true">
-            /
-          </span>
-          <button
-            type="button"
-            className={lang === "ja" ? "on" : ""}
-            onClick={() => setLang("ja")}
-            aria-pressed={lang === "ja"}
-          >
-            日本語
-          </button>
-        </div>
-        <a href="#book" className="nav-book">
-          {t({ en: "Book a day", ja: "予約する" })}
-        </a>
-      </div>
-    </nav>
-  );
-}
-
 export default function Page() {
-  const [lang, setLangState] = useState<Lang>("en");
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("nld-lang");
-    if (saved === "ja" || saved === "en") setLangState(saved);
-  }, []);
-  useEffect(() => {
-    document.documentElement.lang = lang;
-  }, [lang]);
-  const setLang = (l: Lang) => {
-    setLangState(l);
-    window.localStorage.setItem("nld-lang", l);
-  };
-
-  const t = (x: L) => x[lang];
-  const tn = (x: LN) => x[lang];
+  const { lang, setLang, t, tn } = useLang();
 
   const marquee = t({
-    en: "Book two nights  ·  we arrange the day  ·  catered meals to your inn  ·  a day with a local sensei  ·  e-bikes & gorges  ·  dive into the local  · ",
-    ja: "2泊のご予約だけ  ·  昼間はまるごとおまかせ  ·  お食事は宿へお届け  ·  地元の先生と過ごす一日  ·  Eバイクと渓谷  ·  ローカルに飛び込む  · ",
+    en: "Book two nights  ·  we arrange the day  ·  catered meals to your inn  ·  a day with a local sensei  ·  e-bikes & gorges  ·  be a local, for a day  · ",
+    ja: "2泊のご予約だけ  ·  昼間はまるごとおまかせ  ·  お食事は宿へお届け  ·  地元の先生と過ごす一日  ·  Eバイクと渓谷  ·  一日だけ、ローカルになる  · ",
   });
 
   return (
@@ -410,12 +71,12 @@ export default function Page() {
             {tn({
               en: (
                 <>
-                  Dive into the <em>local.</em>
+                  Be a local, <em>for a day.</em>
                 </>
               ),
               ja: (
                 <>
-                  ローカルに、<em>飛び込む。</em>
+                  一日だけ、<em>ローカルになる。</em>
                 </>
               ),
             })}
@@ -428,7 +89,7 @@ export default function Page() {
           </p>
           <div className="hero-ctas">
             <a href="#tours" className="btn-primary">
-              {t({ en: "See the three tours", ja: "3つのツアーを見る" })}
+              {t({ en: "See the two tours", ja: "2つのツアーを見る" })}
             </a>
             <a href="#idea" className="btn-secondary">
               {t({ en: "How it works", ja: "仕組みを知る" })}
@@ -502,8 +163,8 @@ export default function Page() {
                 <span className="circle-key">What</span>
                 <h3>
                   {t({
-                    en: "Three ways to spend one day.",
-                    ja: "一日の過ごし方は、3通り。",
+                    en: "Two ways to spend one day.",
+                    ja: "一日の過ごし方は、2通り。",
                   })}
                 </h3>
                 <p>
@@ -613,92 +274,46 @@ export default function Page() {
               {tn({
                 en: (
                   <>
-                    Three ways to spend <em>the day</em>.
+                    Two ways to spend <em>the day</em>.
                   </>
                 ),
                 ja: (
                   <>
-                    <em>一日</em>の過ごし方、3通り。
+                    <em>一日</em>の過ごし方、2通り。
                   </>
                 ),
               })}
             </h2>
             <p>
               {t({
-                en: "Same catered breakfast and dinner for all three. Departures from Nagiso Station at 9:30, finishing late afternoon. Up to 6 guests.",
-                ja: "朝食と夕食のケータリングは3プラン共通。南木曽駅9時30分発、夕方前に終了。最大6名さままで。",
+                en: "Same catered breakfast and dinner for both tours. Departures from Nagiso Station at 9:30, finishing late afternoon. Up to 6 guests.",
+                ja: "朝食と夕食のケータリングは両プラン共通。南木曽駅9時30分発、夕方前に終了。最大6名さままで。",
               })}
             </p>
           </div>
 
-          {TOURS.map((tour) => (
-            <article className="tour" key={tour.plan}>
-              <div className="tour-head">
-                <div className="tour-head-text">
+          <div className="tour-cards">
+            {TOURS.map((tour) => (
+              <Link href={`/${tour.slug}`} className="tour-card" key={tour.plan}>
+                <div className="tour-card-photo">
+                  <Figure src={tour.headPhoto.src} label={t(tour.headPhoto.label)} />
+                </div>
+                <div className="tour-card-body">
                   <span className="tour-plan">{tour.plan}</span>
                   <h3>{tn(tour.title)}</h3>
                   <div className="tour-jp">{t(tour.sub)}</div>
-                  <dl className="tour-meta">
-                    <div>
-                      <dt>{t({ en: "Best for", ja: "おすすめ" })}</dt>
-                      <dd>{t(tour.target)}</dd>
-                    </div>
-                    <div>
-                      <dt>{t({ en: "Mobility", ja: "移動手段" })}</dt>
-                      <dd>{t(tour.mobility)}</dd>
-                    </div>
-                    <div className="price-cell">
-                      <dt>{t({ en: "Price · group of 4", ja: "料金 · 4名グループ" })}</dt>
-                      <dd className="price">{tour.price}</dd>
-                      <span className="price-note">
-                        {t({ en: "±15% per ±1 person", ja: "1名増減ごとに±15%" })}
-                      </span>
-                    </div>
-                  </dl>
-                </div>
-                <div className="tour-head-photo">
-                  <Figure src={tour.headPhoto.src} label={t(tour.headPhoto.label)} />
-                </div>
-              </div>
-              <div className="tour-body">
-                <span className="eyebrow-dark">
-                  {t({ en: "The day, stop by stop", ja: "一日の流れ、順を追って" })}
-                </span>
-                <ol className="timeline">
-                  {tour.stops.map((s, i) => (
-                    <li className="stop" key={i}>
-                      <h4>{t(s.title)}</h4>
-                      <p>{t(s.body)}</p>
-                    </li>
-                  ))}
-                </ol>
-                {tour.mapEmbed ? (
-                  <div className="map-slot has-map">
-                    <iframe
-                      src={tour.mapEmbed}
-                      title={`${tour.plan} route map`}
-                      loading="lazy"
-                      allowFullScreen
-                    />
-                  </div>
-                ) : (
-                  <div className="map-slot">
-                    <span>
-                      {t({
-                        en: "Route map — Google My Maps embed goes here",
-                        ja: "ルートマップ — Google My Maps をここに埋め込み予定",
-                      })}
+                  <p className="tour-card-blurb">{t(tour.blurb)}</p>
+                  <div className="tour-card-meta">
+                    <span className="tour-card-price">{tour.price}</span>
+                    <span className="tour-card-price-note">
+                      {t({ en: "group of 4 · ±15% per ±1 person", ja: "4名グループ · 1名増減ごとに±15%" })}
                     </span>
                   </div>
-                )}
-                <div className="gallery">
-                  {tour.gallery.map((g) => (
-                    <Figure key={g.src} src={g.src} label={t(g.label)} />
-                  ))}
+                  <span className="btn-view">{t({ en: "See the full day →", ja: "一日の流れを見る →" })}</span>
                 </div>
-              </div>
-            </article>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -711,20 +326,20 @@ export default function Page() {
               {tn({
                 en: (
                   <>
-                    Pick a date, <em>pay in a tap.</em>
+                    Pick a date, <em>message us.</em>
                   </>
                 ),
                 ja: (
                   <>
-                    日付を選んで、<em>その場で決済。</em>
+                    日付を選んで、<em>メッセージひとつ。</em>
                   </>
                 ),
               })}
             </h2>
             <p>
               {t({
-                en: "Trial season opens September 2026, with a handful of seats each departure. Reserve and prepay online; you book your own inn separately (we'll point you to the good ones).",
-                ja: "2026年9月、トライアルシーズンが始まります。各回の席はわずか。オンラインでご予約・事前決済を。宿はご自身で別途ご予約ください(良い宿をご案内します)。",
+                en: "Trial season opens September 2026, with a handful of seats each departure. Choose your tour, then book over WhatsApp; you book your own inn separately (we'll point you to the good ones).",
+                ja: "2026年9月、トライアルシーズンが始まります。各回の席はわずか。ツアーを選んだら、WhatsAppでご予約を。宿はご自身で別途ご予約ください(良い宿をご案内します)。",
               })}
             </p>
           </div>
@@ -735,16 +350,6 @@ export default function Page() {
               label={t({ en: "Season schedule", ja: "シーズンスケジュール" })}
               ratio="16 / 7"
             />
-          </div>
-
-          <div className="square-slot">
-            <span className="square-badge">{t({ en: "Square booking", ja: "Square予約" })}</span>
-            <p>
-              {t({
-                en: "The live class-schedule & prepayment (Square) embed will live here — pick a date and check out.",
-                ja: "ここにSquareのクラススケジュール&事前決済の埋め込みが入ります — 日付を選んで、そのままチェックアウト。",
-              })}
-            </p>
           </div>
 
           <ol className="book-steps">
@@ -763,8 +368,8 @@ export default function Page() {
               <h4>{t({ en: "Reserve the day", ja: "一日を予約する" })}</h4>
               <p>
                 {t({
-                  en: "Choose a tour and a date, and prepay securely through Square.",
-                  ja: "ツアーと日付を選び、Squareで安全に事前決済。",
+                  en: "Message us on WhatsApp with your tour, date and group size.",
+                  ja: "ツアーと日付、人数を添えて、WhatsAppでメッセージを。",
                 })}
               </p>
             </li>
@@ -779,47 +384,12 @@ export default function Page() {
               </p>
             </li>
           </ol>
+
+          <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="btn-whatsapp">
+            {t({ en: "Book via WhatsApp", ja: "WhatsAppで予約する" })}
+          </a>
         </div>
       </div>
-
-      {/* =========================== SENSEIS =========================== */}
-      <section id="people">
-        <div className="section-head">
-          <span className="eyebrow-dark">{t({ en: "Your local senseis", ja: "地元の先生たち" })}</span>
-          <h2>
-            {tn({
-              en: (
-                <>
-                  Taught by the people who <em>actually live it.</em>
-                </>
-              ),
-              ja: (
-                <>
-                  教えるのは、<em>それを生きてきた人。</em>
-                </>
-              ),
-            })}
-          </h2>
-          <p>
-            {t({
-              en: "Not performers for tourists — neighbours who have kept these crafts alive for a lifetime.",
-              ja: "観光客向けのパフォーマーではありません — この手仕事を一生かけて守ってきた、ご近所さんたちです。",
-            })}
-          </p>
-        </div>
-        <div className="sensei-grid">
-          {SENSEIS.map((s) => (
-            <div className="sensei" key={s.craft.en}>
-              <div className="sensei-photo">
-                <Figure src={s.src} label={t(s.craft)} ratio="1 / 1" />
-              </div>
-              <span className="sensei-craft">{t(s.craft)}</span>
-              <h4>{t(s.name)}</h4>
-              <p>{t(s.body)}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* =========================== ORGANIZER =========================== */}
       <div className="organizer">
@@ -880,47 +450,9 @@ export default function Page() {
         ))}
       </div>
 
-      {/* =========================== FOOTER =========================== */}
-      <footer className="lp-footer">
-        <div className="lp-footer-inner">
-          <div>
-            <div className="ft-brand">Nagiso Local Dive</div>
-            <p>
-              {t({
-                en: "Zero-night day tours in the Kiso Valley — catered meals to your inn, and a day with a local.",
-                ja: "木曽谷のゼロ泊デイツアー — お食事は宿へお届け、一日は地元の人とともに。",
-              })}
-            </p>
-            <p>{t({ en: "Departures from Nagiso Station, Nagano.", ja: "長野県・南木曽駅 発着。" })}</p>
-          </div>
-          <div>
-            <h5>{t({ en: "Explore", ja: "めぐる" })}</h5>
-            <a href="#idea">{t({ en: "The idea", ja: "コンセプト" })}</a>
-            <a href="#day">{t({ en: "A day, delivered", ja: "一日の流れ" })}</a>
-            <a href="#tours">{t({ en: "The three tours", ja: "3つのツアー" })}</a>
-            <a href="#book">{t({ en: "Dates & booking", ja: "日程と予約" })}</a>
-          </div>
-          <div>
-            <h5>{t({ en: "Operator", ja: "運営" })}</h5>
-            <p>{t({ en: "From Scratch LLC", ja: "合同会社 From Scratch" })}</p>
-            <p>
-              {t({
-                en: "4181 Yomikaki, Nagiso-machi, Kiso-gun, Nagano",
-                ja: "長野県木曽郡南木曽町読書4181",
-              })}
-            </p>
-            <p>{t({ en: "Yasuhiro Fukuda, Representative", ja: "代表 Yasuhiro Fukuda" })}</p>
-          </div>
-        </div>
-        <div className="ft-bottom">
-          {t({
-            en: `© ${new Date().getFullYear()} Nagiso Local Dive · From Scratch LLC · Trial launch September 2026`,
-            ja: `© ${new Date().getFullYear()} Nagiso Local Dive · 合同会社 From Scratch · 2026年9月トライアル開始`,
-          })}
-        </div>
-      </footer>
+      <Footer t={t} />
 
-      <a href="#book" className="float-book">
+      <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="float-book">
         {t({ en: "Book a day", ja: "予約する" })}
       </a>
     </>

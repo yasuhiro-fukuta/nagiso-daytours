@@ -70,10 +70,19 @@ Revision 1 (2026-07-12, applied): hero → "Dive into the local." only + new led
 - Tour subtitle line (`.tour-jp`) now shows the *opposite* language as the accent: JP subtitle in EN mode (as before), EN title in JA mode.
 - Verified via Playwright: toggle switches all sections, persists across reload, console clean.
 
+## 2026-07-19 (later) — new tagline + 4-page split, Plan B dropped, WhatsApp booking ✅
+- Tagline changed to **"Be a local, for a day."** (user asked for "Be a local one day", English corrected) / JA 「一日だけ、ローカルになる。」 — hero, marquee, layout metadata all updated.
+- Site split into pages: **`/` (HOME)**, **`/plan-a`**, **`/plan-c`**; **Plan B removed entirely**. Nav menu now: The idea · A day · Plan A · Plan C.
+- New shared modules: `i18n.tsx` (useLang hook, localStorage-persisted), `content.tsx` (Tour data, SENSEIS, WHATSAPP const), `Nav.tsx` (with `solid` prop for heroless pages), `Footer.tsx`, `TourPage.tsx` (shared plan-page template: tour article + senseis + WhatsApp CTA).
+- HOME: tours section is now 2 teaser cards (`.tour-cards`) linking to plan pages; **Square slot removed** (booking = WhatsApp); senseis section moved off HOME.
+- Plan pages: full tour detail + WhatsApp booking CTA (`.book-cta`/`.btn-whatsapp`); Plan A carries all 4 senseis (its activities); Plan C has none (cycling).
+- ⚠️ `WHATSAPP` in `content.tsx` is a **placeholder number** (`wa.me/818000000000`) — swap in the real one before production.
+- FAQ updated: pay/booking answer now WhatsApp flow; fitness answer no longer mentions Plan B.
+
 Next tasks (any order, per user request):
-1. Plan A & B MyMap route embeds — just set `mapEmbed` on the tour object once user shares each map URL (convert `/edit?mid=…` → `/embed?mid=…`; map must be shared "anyone with the link").
-2. Real photos: drop files at `public/img/<name>.jpg` (exact names in image map above) — `Figure` auto-swaps them in.
-3. Square prepayment / class-schedule embed in the schedule section.
+1. **Replace WhatsApp placeholder number** in `src/app/content.tsx` (`WHATSAPP`).
+2. Plan A MyMap route embed — set `mapEmbed` on the tour object once user shares the map URL (convert `/edit?mid=…` → `/embed?mid=…`; map must be shared "anyone with the link").
+3. Real photos: drop files at `public/img/<name>.jpg` (exact names in image map above) — `Figure` auto-swaps them in.
 4. 特商法 (SCTA) statutory disclosure page.
 5. Further copy/design iteration per user feedback.
 
